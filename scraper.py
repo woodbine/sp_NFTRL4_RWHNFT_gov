@@ -44,7 +44,6 @@ def validateURL(url):
             count += 1
             r = urllib2.urlopen(url)
         sourceFilename = r.headers.get('Content-Disposition')
-
         if sourceFilename:
             ext = os.path.splitext(sourceFilename)[1].replace('"', '').replace(';', '').replace(' ', '')
         else:
@@ -85,7 +84,7 @@ def convert_mth_strings ( mth_string ):
 #### VARIABLES 1.0
 
 entity_id = "NFTRL4_RWHNFT_gov"
-url = "http://www.royalwolverhamptonhospitals.nhs.uk/about_us/freedom_of_information/how_we_spend_our_money.aspx"
+url = "http://www.royalwolverhampton.nhs.uk/about-us/how-we-spend-our-money/how-we-spend-our-money-april-2010-march-2016/"
 errors = 0
 data = []
 
@@ -97,26 +96,10 @@ soup = BeautifulSoup(html, 'lxml')
 
 #### SCRAPE DATA
 
-blocks = soup.find('strong', text=re.compile('Previous Yearly Expenditure')).find_all_next('a')
-for block in blocks:
-    if 'expenditure ' in block.text:
-        previous_links = 'http://www.royalwolverhamptonhospitals.nhs.uk'+block['href']
-        previous_html = urllib2.urlopen(previous_links)
-        previous_soup = BeautifulSoup(previous_html, 'lxml')
-        previous_pages = previous_soup.find('p', text=re.compile('Click on the link')).find_all_next('a')
-        for previous_page in previous_pages:
-            if '.csv' in previous_page['href'] or '.xls' in previous_page['href'] or '.xlsx' in previous_page['href']:
-                title = previous_page.text.strip()
-                url = 'http://www.royalwolverhamptonhospitals.nhs.uk'+previous_page['href']
-                csvMth = title[:3]
-                csvYr = title[-4:]
-                csvMth = convert_mth_strings(csvMth.upper())
-                data.append([csvYr, csvMth, url])
-pages = soup.find('p', text=re.compile('Click on the link')).find_all_next('a')
-for page in pages:
-    if '.csv' in page['href'] or '.xls' in page['href'] or '.xlsx' in page['href']:
+blocks = soup.find_all('a', 'download-sheet ')
+for page in blocks:
         title = page.text.strip()
-        url = 'http://www.royalwolverhamptonhospitals.nhs.uk'+page['href']
+        url = 'http://www.royalwolverhampton.nhs.uk'+page['href']
         csvMth = title[:3]
         csvYr = title[-4:]
         csvMth = convert_mth_strings(csvMth.upper())
